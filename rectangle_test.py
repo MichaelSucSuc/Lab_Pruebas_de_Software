@@ -1,65 +1,79 @@
 # rectangle_test.py
-# Archivo de pruebas para rectangle.py
-# Se prueban TODOS los casos: válidos, inválidos, intentos de romperlo.
+# Script para probar rectangle.py manualmente
+# Analiza CADA input por separado y dice exactamente qué está mal
 
 from rectangle import calcular_area
 
-def probar_caso(descripcion, base, altura, esperado):
-    """
-    Función auxiliar para probar un caso y mostrar si pasó o falló.
-    """
-    resultado = calcular_area(base, altura)
-    if resultado == esperado:
-        print(f"✅ PASÓ: {descripcion}")
-    else:
-        print(f"❌ FALLÓ: {descripcion} -> Esperado {esperado}, obtenido {resultado}")
+def analizar_input(valor, nombre):
+    """Analiza un input y devuelve (es_valido, mensaje, numero)"""
+    
+    # Caso 1: Vacío
+    if valor == "":
+        return False, f"{nombre} está VACÍA", None
+    
+    # Caso 2: Solo espacios
+    if valor.strip() == "":
+        return False, f"{nombre} solo tiene ESPACIOS", None
+    
+    # Caso 3: Intentar convertir a número
+    try:
+        num = float(valor)
+        
+        # Caso 4: Número negativo
+        if num < 0:
+            return False, f"{nombre} es NEGATIVO ({num})", None
+        
+        # Caso 5: Cero
+        if num == 0:
+            return False, f"{nombre} es CERO", None
+        
+        # Caso 6: Número positivo válido
+        return True, f"{nombre} es válido ({num})", num
+        
+    except ValueError:
+        # Caso 7: Revisar si es coma decimal
+        if "," in valor:
+            return False, f"{nombre} tiene COMA decimal (usa punto)", None
+        
+        # Caso 8: Revisar si tiene letras
+        if any(c.isalpha() for c in valor):
+            return False, f"{nombre} tiene LETRAS", None
+        
+        # Caso 9: Revisar si tiene símbolos
+        if any(not c.isdigit() and c not in ['.', '-', '+'] for c in valor):
+            return False, f"{nombre} tiene SÍMBOLOS", None
+        
+        # Caso 10: Otro error
+        return False, f"{nombre} NO es un número válido", None
 
 def main():
-    print("=== PRUEBAS DEL PROGRAMA RECTÁNGULO (VERSIÓN CORREGIDA) ===\n")
+    print("=" * 70)
+    print("PRUEBA MANUAL - RECTÁNGULO (ANÁLISIS DETALLADO)")
+    print("=" * 70)
     
-    # ===== CASOS VÁLIDOS (deben dar el área correcta) =====
-    probar_caso("Enteros positivos", "5", "3", 15.0)
-    probar_caso("Decimales", "2.5", "4.2", 10.5)
-    probar_caso("Base decimal, altura entera", "7.3", "2", 14.6)
-    probar_caso("Base entera, altura decimal", "8", "1.5", 12.0)
-    probar_caso("Números grandes", "1000", "2000", 2_000_000.0)
-    probar_caso("Muy pequeños positivos", "0.0001", "0.0002", 2e-08)
+    # Pedir datos
+    print("\n📝 Ingrese los datos de prueba:")
+    base_input = input("   Base: ")
+    altura_input = input("   Altura: ")
     
-    # ===== CASOS INVÁLIDOS POR NÚMEROS NEGATIVOS O CERO =====
-    probar_caso("Base negativa", "-5", "4", None)
-    probar_caso("Altura negativa", "5", "-4", None)
-    probar_caso("Ambos negativos", "-2", "-3", None)
-    probar_caso("Base cero", "0", "5", None)
-    probar_caso("Altura cero", "8", "0", None)
-    probar_caso("Ambos cero", "0", "0", None)
-    probar_caso("Base negativa con decimal", "-2.5", "3", None)
     
-    # ===== CASOS INVÁLIDOS POR TEXTO O SÍMBOLOS =====
-    probar_caso("Base con letras", "abc", "5", None)
-    probar_caso("Altura con letras", "8", "xyz", None)
-    probar_caso("Ambos con letras", "hola", "mundo", None)
-    probar_caso("Base con símbolos", "@#$", "5", None)
-    probar_caso("Altura con símbolos", "8", "!@#", None)
+    # Analizar base
+    base_valida, base_mensaje, base_num = analizar_input(base_input, "Base")
+    print(f"\n🔍 {base_mensaje}")
     
-    # ===== CASOS INVÁLIDOS POR VACÍOS O ESPACIOS =====
-    probar_caso("Valor vacío", "", "5", None)
-    probar_caso("Solo espacios", "   ", "3", None)
-    probar_caso("Base vacía, altura válida", "", "10", None)
-    probar_caso("Altura vacía, base válida", "10", "", None)
-    probar_caso("Ambos vacíos", "", "", None)
-    probar_caso("Solo espacios en ambos", "   ", "   ", None)
+    # Analizar altura
+    altura_valida, altura_mensaje, altura_num = analizar_input(altura_input, "Altura")
+    print(f"🔍 {altura_mensaje}")
     
-    # ===== CASOS INVÁLIDOS POR FORMATOS RAROS =====
-    probar_caso("Número con letras pegadas", "3a", "4", None)
-    probar_caso("Doble signo", "--5", "4", None)
-    probar_caso("Signo más", "+5", "4", 20.0)  # +5 es válido, es positivo
-    probar_caso("Espacios internos", "5 0", "4", None)  # "5 0" no es número válido
-    probar_caso("Coma en lugar de punto", "5,5", "4", None)  # Python usa punto decimal
-    probar_caso("Número con texto", "5 perros", "4", None)
     
-    print("\n=== FIN DE LAS PRUEBAS ===")
-    print("\nNOTA: Solo los casos con números POSITIVOS (enteros o decimales) deberían pasar.")
-    print("      Negativos, cero, letras, símbolos, vacíos y formatos raros son RECHAZADOS.")
+    # Decidir resultado
+    if base_valida and altura_valida:
+        area = calcular_area(base_num, altura_num)
+        print(f"\n✅ ÉXITO: Área = {area}")
+    else:
+        print("\n❌ ERROR: No se puede calcular el área")
+        print("   La base y altura deben ser números POSITIVOS")
+    
 
 if __name__ == "__main__":
     main()
